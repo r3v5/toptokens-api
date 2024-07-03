@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="toptokens-api/toptokens-high-resolution-logo.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/r3v5/toptokens-api/blob/main/toptokens-high-resolution-logo.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">TopTokens API</h3>
