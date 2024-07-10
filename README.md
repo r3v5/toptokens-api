@@ -44,17 +44,13 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#toptokens-whitepaper">TopTokens Whitepaper</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#system-design">System Design</a></li>
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
+      <a href="#build-with">Build With</a>
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -67,38 +63,67 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+<!-- TopTokens Whitepaper -->
+## TopTokens Whitepaper
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+Product: TopTokens is a user-friendly screener of cryptocurrencies 
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+What problem is solving:
+* Provides analytic screener of tokens that are backed by tier 1 hedge funds that shows attractiveness for buying or selling based on market situation that is explained by CNN SPX and Crypto fear and greed index and dynamics of price of instrument on the specific range of time.
+* Shows what tokens fell more than others or grew more than others -> percentage for 1 month, percentage for 3 month, percentage for 6 month, percentage for 1 year.
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
+Constraints: Only tokens that are backed by tier 1 hedge funds and the following caps: large cap($1B <= cap) and mid cap($100,000,000 < cap < $1B)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
-### Built With
+### System Design
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+* Backend:
+    Two apps:
+          * users:
+              1. api/v1/signup/
+              2. api/v1/login/
+              3. api/v1/logout/
+              4. api/v1/user/
+          
+          * analytic_screener (data from Coingecko and CNN):
+              !! Use Redis Cache for caching api responses from endpoints since we only have 10k monthly calls
+              !! Use Raw SQL to optimise Response time from API
+              1. api/v1/tokens/
+              2. api/v1/tokens/ticker/ - specific info
+              3. api/v1/fear-and-greed/
+      
+     Models:
+     CustomUser:
+          email
+  
+     Cryptocurrency:
+           name: str
+           ticker: str
+           price: float
+           market_cap: float
+           funds: ManyToMany(HedgeFund)
+           dynamics_for_1_year: float -inf +inf
+           dynamics_for_6_months: float -inf +inf
+           dynamics_for_3_months: float -inf +inf
+           dynamics_for_1_month: float -inf +inf
+    
+     HedgeFund:
+            name: str
+            holdings: ManyToMany(Cryptocurrency)
+      
+     MarketIndicator:
+            name: str 
+            value: int
+    
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+    Celery tasks:
+     - parse hedge funds portfolios and create objects for Django models 
+     - Get all cryptocurrencies from db and calculate dynamics for each object and update fields in model if necessary and update prices and market cap if changed 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
