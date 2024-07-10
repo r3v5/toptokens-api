@@ -82,7 +82,7 @@ Constraints: Only tokens that are backed by tier 1 hedge funds and the following
 
 ### System Design
 
-* Backend:
+Backend:
     Two apps:
           * users:
               1. api/v1/signup/
