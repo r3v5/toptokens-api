@@ -82,43 +82,42 @@ Constraints: Only tokens that are backed by tier 1 hedge funds and the following
 
 ### System Design
 
-Backend:
-    Two apps:
-          * users:
-              1. api/v1/signup/
-              2. api/v1/login/
-              3. api/v1/logout/
-              4. api/v1/user/
+Backend has two apps:
+    * users:
+        1. api/v1/signup/
+        2. api/v1/login/
+        3. api/v1/logout/
+        4. api/v1/user/
           
-          * analytic_screener (data from Coingecko and CNN):
-              !! Use Redis Cache for caching api responses from endpoints since we only have 10k monthly calls
-              !! Use Raw SQL to optimise Response time from API
-              1. api/v1/tokens/
-              2. api/v1/tokens/ticker/ - specific info
-              3. api/v1/fear-and-greed/
+    * analytic_screener (data from Coingecko and CNN):
+        !! Use Redis Cache for caching api responses from endpoints since we only have 10k monthly calls
+        !! Use Raw SQL to optimise Response time from API
+        1. api/v1/tokens/
+        2. api/v1/tokens/ticker/ - specific info
+        3. api/v1/fear-and-greed/
       
-     Models:
-     CustomUser:
-          email
+    Models:
+    CustomUser:
+        email
   
-     Cryptocurrency:
-           name: str
-           ticker: str
-           price: float
-           market_cap: float
-           funds: ManyToMany(HedgeFund)
-           dynamics_for_1_year: float -inf +inf
-           dynamics_for_6_months: float -inf +inf
-           dynamics_for_3_months: float -inf +inf
-           dynamics_for_1_month: float -inf +inf
+    Cryptocurrency:
+          name: str
+          ticker: str
+          price: float
+          market_cap: float
+          funds: ManyToMany(HedgeFund)
+          dynamics_for_1_year: float -inf +inf
+          dynamics_for_6_months: float -inf +inf
+          dynamics_for_3_months: float -inf +inf
+          dynamics_for_1_month: float -inf +inf
     
-     HedgeFund:
-            name: str
-            holdings: ManyToMany(Cryptocurrency)
+    HedgeFund:
+          name: str
+          holdings: ManyToMany(Cryptocurrency)
       
-     MarketIndicator:
-            name: str 
-            value: int
+    MarketIndicator:
+          name: str 
+          value: int
     
 
     Celery tasks:
