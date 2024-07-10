@@ -84,18 +84,22 @@ Constraints: Only tokens that are backed by tier 1 hedge funds and the following
 
 Backend has two apps:
 - users:
+    ```
     1. api/v1/signup/
     2. api/v1/login/
     3. api/v1/logout/
     4. api/v1/user/
+    ```
           
 - analytic_screener (data from Coingecko and CNN):
+    ```
     !! Use Redis Cache for caching api responses from endpoints since we only have 10k monthly calls
     !! Use Raw SQL to optimise Response time from API
     1. api/v1/tokens/
     2. api/v1/tokens/ticker/ - specific info
     3. api/v1/fear-and-greed/
-      
+    ```
+```      
 Models:
 CustomUser:
     email
@@ -123,6 +127,7 @@ MarketIndicator:
 Celery tasks:
   - parse hedge funds portfolios and create objects for Django models 
   - Get all cryptocurrencies from db and calculate dynamics for each object and update fields in model if necessary and update prices and market cap if changed 
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
