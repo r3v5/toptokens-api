@@ -1,3 +1,6 @@
+# This work is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+# https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
