@@ -18,7 +18,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/r3v5/toptokens-api/blob/dev/toptokens-high-resolution-logo.png">
+  <a href="https://github.com/r3v5/toptokens-api/">
     <img src="https://github.com/r3v5/toptokens-api/blob/main/toptokens-high-resolution-logo.png" alt="Logo" width="80" height="80">
   </a>
 
