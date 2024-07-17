@@ -2,14 +2,14 @@
 # https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
 
 services:
-  top-tokens-api:
+  toptokens-api:
     build:
       context: ./app
       dockerfile: Dockerfile.dev
     command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - static_volume:/home/app/top-tokens-api/staticfiles
-      - media_volume:/home/app/top-tokens-api/mediafiles
+      - static_volume:/home/app/toptokens-api/staticfiles
+      - media_volume:/home/app/toptokens-api/mediafiles
       - ./app/:/usr/src/app/
     ports:
       - 8000:8000
@@ -22,12 +22,12 @@ services:
     build: ./nginx_dev
     restart: always
     volumes:
-      - static_volume:/home/app/top-tokens-api/staticfiles
-      - media_volume:/home/app/top-tokens-api/mediafiles
+      - static_volume:/home/app/toptokens-api/staticfiles
+      - media_volume:/home/app/toptokens-api/mediafiles
     ports:
       - 1337:80
     depends_on:
-      - top-tokens-api
+      - toptokens-api
   
   top-tokens-db:
     image: postgres:15
@@ -60,7 +60,7 @@ services:
     depends_on:
       - redis
       - top-tokens-db
-      - top-tokens-api
+      - toptokens-api
     env_file:
       - ./.env.dev
     environment:
@@ -78,7 +78,7 @@ services:
     depends_on:
       - redis
       - top-tokens-db
-      - top-tokens-api
+      - toptokens-api
     env_file:
       - ./.env.dev
     environment:

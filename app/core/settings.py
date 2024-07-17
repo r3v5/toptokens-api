@@ -23,7 +23,10 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
 
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:1337",
+    "http://127.0.0.1:1337",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "cachalot",
     "corsheaders",
+    "drf_yasg",
     # apps
     "users",
 ]
@@ -62,8 +66,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
+
+# Remove CsrfViewMiddleware for Django admin views
+if "django.middleware.csrf.CsrfViewMiddleware" in MIDDLEWARE:
+    MIDDLEWARE.remove("django.middleware.csrf.CsrfViewMiddleware")
 
 ROOT_URLCONF = "core.urls"
 
@@ -119,8 +126,6 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = os.environ.get(
     "CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP"
 )
 
-# Redis config
-CACHE_TTL = 3600
 
 CACHES = {
     "default": {
@@ -180,7 +185,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "core.exceptions.status_code_handler",
+    "EXCEPTION_HANDLER": "users.exceptions.status_code_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -189,6 +194,16 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
     ],
 }
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    },
+    "USE_SESSION_AUTH": False,
+    "REFETCH_SCHEMA_WITH_AUTH": True,
+    "SUPPORTED_SUBMIT_METHODS": ["get", "post", "put", "delete", "patch"],
+}
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),

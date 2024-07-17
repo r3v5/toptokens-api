@@ -6,15 +6,11 @@ from typing import Any, Optional
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
-if False:  # type checking
-    from .models import CustomUser  # noqa
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(
         self, email: str, password: Optional[str] = None, **extra_fields: Any
-    ) -> "CustomUser":
-        from .models import CustomUser
+    ):
 
         if not email:
             raise ValueError(_("The Email must be set"))
@@ -26,8 +22,7 @@ class CustomUserManager(BaseUserManager):
 
     def create_superuser(
         self, email: str, password: Optional[str], **extra_fields: Any
-    ) -> "CustomUser":
-        from .models import CustomUser
+    ):
 
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)

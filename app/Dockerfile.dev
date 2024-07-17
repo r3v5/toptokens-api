@@ -47,7 +47,7 @@ RUN addgroup --system app && adduser --system --group app
 
 # create the appropriate directories
 ENV HOME=/home/app
-ENV APP_HOME=/home/app/top-tokens-api
+ENV APP_HOME=/home/app/toptokens-api
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/staticfiles
 RUN mkdir $APP_HOME/mediafiles
@@ -72,10 +72,10 @@ COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
 
 # Ensure correct permissions for static files directory
-RUN chown -R app:app /home/app/top-tokens-api/staticfiles
+RUN chown -R app:app /home/app/toptokens-api/staticfiles
 
 # change to the app user
 USER app
 
 # run entrypoint.dev.sh
-ENTRYPOINT ["/home/app/top-tokens-api/entrypoint.dev.sh"]
+ENTRYPOINT ["/home/app/toptokens-api/entrypoint.dev.sh"]
