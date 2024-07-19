@@ -30,10 +30,11 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    date_joined = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = [
-            "id",
-            "email",
-        ]
+        fields = ["email", "date_joined"]
+
+    def get_date_joined(self, obj):
+        return obj.date_joined.strftime("%Y-%m-%d")
