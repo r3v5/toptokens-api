@@ -71,7 +71,7 @@ def test_login_api_view_invalid_credentials(api_client):
 def test_user_api_view(api_client, create_user_with_tokens):
     user, access_token = create_user_with_tokens
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
-    url = reverse("user")
+    url = reverse("profile")
     response = api_client.get(url)
     formatted_date_joined = user.date_joined.strftime("%Y-%m-%d")
     assert response.status_code == status.HTTP_200_OK

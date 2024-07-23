@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     # apps
     "users",
+    "analytic_screener",
 ]
 
 MIDDLEWARE = [

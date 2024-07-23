@@ -7,6 +7,7 @@ from rest_framework import permissions
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/users/", include("users.urls")),
+    path("api/v1/analytic-screener/", include("analytic_screener.urls")),
 ]
 
 

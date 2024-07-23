@@ -85,10 +85,14 @@ Constraints: Only tokens that are backed by tier 1 hedge funds and the following
 Backend has two apps:
 - users:
     ```
-    1. api/v1/signup/
-    2. api/v1/login/
-    3. api/v1/logout/
-    4. api/v1/user/
+    1. api/users/v1/signup/
+    2. api/users/v1/login/
+    3. api/users/v1/logout/
+    4. api/users/v1/token/refresh/
+    5. api/users/v1/token/verify/
+    6. api/users/v1/token/delete-tokens-with-none-users/
+    7. api/users/v1/profile/
+    8. api/users/v1/delete-profile/
     ```
           
 - analytic_screener (data from Coingecko and CNN):

@@ -61,7 +61,7 @@ class TestUrls(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_profile_url(self):
-        url = reverse("user")
+        url = reverse("profile")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
