@@ -29,4 +29,7 @@ def test_profile_serializer():
         email="test@example.com", password="strongpassword"
     )
     serializer = ProfileSerializer(user)
-    assert serializer.data == {"id": user.id, "email": user.email}
+    assert serializer.data == {
+        "email": user.email,
+        "date_joined": user.date_joined.strftime("%Y-%m-%d"),
+    }

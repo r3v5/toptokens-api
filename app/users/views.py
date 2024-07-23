@@ -1,19 +1,28 @@
-from django.conf import settings
+from typing import Dict
+
 from django.contrib.auth import authenticate, logout
-from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
+from django.utils import timezone
 from rest_framework import exceptions, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import CustomUser
 from .serializers import ProfileSerializer, SignupSerializer
+
+
+def generate_tokens_for_user(user: CustomUser) -> Dict[str, str]:
+    refresh = RefreshToken.for_user(user)
+    return {
+        "access_token": str(refresh.access_token),
+        "refresh_token": str(refresh),
+    }
 
 
 class SignupAPIView(APIView):
@@ -55,14 +64,13 @@ class LoginAPIView(APIView):
         else:
 
             user = authenticate(request, email=email, password=password)
-            access_token = str(RefreshToken.for_user(user).access_token)
-            refresh_token = str(RefreshToken.for_user(user))
+            tokens = generate_tokens_for_user(user)
 
             user.is_active = True
             user.save()
 
             response = Response(
-                {"access_token": access_token, "refresh_token": refresh_token},
+                tokens,
                 status=status.HTTP_200_OK,
             )
 
@@ -78,21 +86,83 @@ class LogoutAPIView(APIView):
 
             try:
                 refresh_token = request.data["refresh_token"]
+
+                if not refresh_token:
+                    return Response(
+                        {"message": "Refresh token is required."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 token = RefreshToken(refresh_token)
-                token.blacklist()
+                refresh_token_jti = token["jti"]
+                OutstandingToken.objects.filter(jti=refresh_token_jti).delete()
                 request.user.is_active = False
                 request.user.save()
                 logout(request)
-                response = Response(
+
+                return Response(
                     {"message": "Logout successfully"},
                     status=status.HTTP_205_RESET_CONTENT,
                 )
-                return response
 
             except Exception:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "An error occurred during logout."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+class VerifyRefreshTokenAPIView(APIView):
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        refresh_token = request.data.get("refresh_token")
+
+        if not refresh_token:
+            return Response(
+                {"message": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.verify()
+
+            return Response(
+                {"message": "Refresh token is valid."}, status=status.HTTP_200_OK
+            )
+
+        except TokenError:
+            # Delete all expired refresh tokens
+            now = timezone.now()
+            OutstandingToken.objects.filter(expires_at__lte=now).delete()
+
+            return Response(
+                {"message": "Refresh token is invalid and has been revoked."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
+class DeleteRefreshTokenAPIView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def delete(self, request: HttpRequest) -> HttpResponse:
+        try:
+            OutstandingToken.objects.filter(user=None).delete()
+
+            return Response(
+                {"message": "Tokens associated with Null users are deleted"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except Exception as e:
+            return Response(
+                {"message": f"Error during deleting tokens: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class UserAPIView(APIView):

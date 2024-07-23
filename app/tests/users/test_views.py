@@ -1,10 +1,11 @@
+from datetime import timedelta
+
 import pytest
-from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import OutstandingToken, RefreshToken
 from users.models import CustomUser
 
 
@@ -72,8 +73,10 @@ def test_user_api_view(api_client, create_user_with_tokens):
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
     url = reverse("user")
     response = api_client.get(url)
+    formatted_date_joined = user.date_joined.strftime("%Y-%m-%d")
     assert response.status_code == status.HTTP_200_OK
-    assert response.data["id"] == user.id
+    assert response.data["email"] == user.email
+    assert response.data["date_joined"] == formatted_date_joined
 
 
 @pytest.mark.django_db
@@ -86,37 +89,72 @@ def test_delete_user_api_view(api_client, create_user_with_tokens):
     assert not CustomUser.objects.filter(id=user.id).exists()
 
 
-User = get_user_model()
+@pytest.mark.django_db
+def test_logout_api_view(api_client, create_user_with_tokens):
+    user, access_token = create_user_with_tokens
+    refresh_token = str(
+        RefreshToken.for_user(user)
+    )  # Generate a new refresh token if necessary
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+    url = reverse("logout")
+    data = {"refresh_token": refresh_token}
+    response = api_client.post(url, data=data, format="json")
+
+    assert response.status_code == status.HTTP_205_RESET_CONTENT
+    assert response.data["message"] == "Logout successfully"
+
+    # Check if the user is inactive after logout
+    user.refresh_from_db()
+    assert not user.is_active
 
 
-class TestLogoutAPIView(TestCase):
+@pytest.mark.django_db
+def test_logout_missing_refresh_token(api_client, create_user_with_tokens):
+    user, access_token = create_user_with_tokens
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")
+    url = reverse("logout")
+    data = {}  # Missing refresh_token
+    response = api_client.post(url, data=data, format="json")
 
-    def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(
-            email="test@example.com", password="password"
-        )
-        self.refresh_token = str(RefreshToken().for_user(self.user))
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_logout_success(self):
-        self.client.force_authenticate(user=self.user)
-        data = {"refresh_token": self.refresh_token}
-        response = self.client.post("/api/v1/users/logout/", data=data)
 
-        self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
-        self.assertEqual(response.data["message"], "Logout successfully")
+@pytest.mark.django_db
+def test_logout_unauthenticated(api_client):
+    url = reverse("logout")
+    response = api_client.post(url, format="json")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-        # Check if the user is inactive after logout
-        self.user.refresh_from_db()
-        self.assertFalse(self.user.is_active)
 
-    def test_logout_missing_refresh_token(self):
-        self.client.force_authenticate(user=self.user)
-        data = {}  # Missing refresh_token
-        response = self.client.post("/api/v1/users/logout/", data=data)
+@pytest.mark.django_db
+def test_delete_refresh_tokens(api_client: APIClient):
+    # Create a test user
+    user = CustomUser.objects.create_user(
+        email="test@example.com", password="password123"
+    )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    # Create an OutstandingToken with all required fields
+    OutstandingToken.objects.create(
+        user=user,
+        jti="some-jti",
+        token="some-token",
+        created_at=timezone.now(),
+        expires_at=timezone.now()
+        + timedelta(days=1),  # Provide a valid expiration time
+    )
 
-    def test_logout_unauthenticated(self):
-        response = self.client.post("/api/v1/users/logout/")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    # Delete the user
+    CustomUser.objects.filter(id=user.id).delete()
+
+    # Verify the token exists with `user=None`
+    assert OutstandingToken.objects.filter(user=None).exists()
+
+    # Send a DELETE request to the endpoint
+    response = api_client.delete("/api/v1/users/token/delete-tokens-with-none-users/")
+
+    # Verify the response status and message
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert response.data["message"] == "Tokens associated with Null users are deleted"
+
+    # Verify the token has been deleted
+    assert not OutstandingToken.objects.filter(user=None).exists()
