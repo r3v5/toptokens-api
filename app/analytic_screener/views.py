@@ -1,4 +1,5 @@
-from django.db import connection
+from decimal import Decimal
+
 from django.http import HttpRequest, HttpResponse
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,319 +7,105 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from .models import Cryptocurrency, HedgeFund
+from .serializers import CryptocurrencySerializer, HedgeFundSerializer
+
 
 class CryptocurrencyAPIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self, request: HttpRequest) -> HttpRequest:
         """
-        By default sort the json by market cap in descending order
+        Filter cryptocurrencies based on price dynamics for a specified period and sort by price percentage change or market cap.
+        Accepts query parameters:
+        - period: '1_year', '6_months', '3_months', '1_month' (optional)
+        - order: 'asc' or 'desc' (optional, default is 'desc')
         """
+        period = request.query_params.get("period")
+        order = request.query_params.get("order", "desc")
 
-        query = """
-            SELECT c.id AS cryptocurrency_id, c.name AS cryptocurrency_name, c.ticker, c.price, c.market_cap,
-                   c.price_dynamics_for_1_year, c.price_dynamics_for_6_months,
-                   c.price_dynamics_for_3_months, c.price_dynamics_for_1_month,
-                   h.id AS hedge_fund_id, h.name AS hedge_fund_name
-            FROM analytic_screener_cryptocurrency AS c
-            LEFT JOIN analytic_screener_cryptocurrency_hedge_funds AS chf ON c.id = chf.cryptocurrency_id
-            LEFT JOIN analytic_screener_hedgefund AS h ON chf.hedgefund_id = h.id
-        """
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(query)
-                rows = cursor.fetchall()
-
-            # Convert rows to a list of dictionaries
-            columns = [col[0] for col in cursor.description]
-            data = [dict(zip(columns, row)) for row in rows]
-
-            # Organize data into structured format
-            result = {}
-            for item in data:
-                crypto_id = item["cryptocurrency_id"]
-                if crypto_id not in result:
-                    result[crypto_id] = {
-                        "id": crypto_id,
-                        "name": item["cryptocurrency_name"],
-                        "ticker": item["ticker"],
-                        "price": item["price"],
-                        "market_cap": item["market_cap"],
-                        "price_dynamics_for_1_year": item["price_dynamics_for_1_year"],
-                        "price_dynamics_for_6_months": item[
-                            "price_dynamics_for_6_months"
-                        ],
-                        "price_dynamics_for_3_months": item[
-                            "price_dynamics_for_3_months"
-                        ],
-                        "price_dynamics_for_1_month": item[
-                            "price_dynamics_for_1_month"
-                        ],
-                        "hedge_funds": [],
-                    }
-                if item["hedge_fund_id"]:
-                    result[crypto_id]["hedge_funds"].append(
-                        {"id": item["hedge_fund_id"], "name": item["hedge_fund_name"]}
-                    )
-
-            # Convert result to list
-            result_list = list(result.values())
-
-            # Sort by market cap in descending order
-            result_list.sort(key=lambda x: x["market_cap"], reverse=True)
-
-            return Response(result_list, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PriceDynamics1YAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        """
-        Filter cryptocurrencies with price dynamics for 1 year and sort price percentage change in descending order.
-        """
-
-        query = """
-            SELECT c.id AS cryptocurrency_id, c.name AS cryptocurrency_name, c.ticker, c.price, c.market_cap,
-                   c.price_dynamics_for_1_year,
-                   h.id AS hedge_fund_id, h.name AS hedge_fund_name
-            FROM analytic_screener_cryptocurrency AS c
-            LEFT JOIN analytic_screener_cryptocurrency_hedge_funds AS chf ON c.id = chf.cryptocurrency_id
-            LEFT JOIN analytic_screener_hedgefund AS h ON chf.hedgefund_id = h.id
-            WHERE c.price_dynamics_for_1_year IS NOT NULL
-        """
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute(query)
-                rows = cursor.fetchall()
-                columns = [col[0] for col in cursor.description]
-                data = [dict(zip(columns, row)) for row in rows]
-
-            # Organize data into structured format
-            result = {}
-            for item in data:
-                crypto_id = item["cryptocurrency_id"]
-                if crypto_id not in result:
-                    result[crypto_id] = {
-                        "id": crypto_id,
-                        "name": item["cryptocurrency_name"],
-                        "ticker": item["ticker"],
-                        "price": item["price"],
-                        "market_cap": item["market_cap"],
-                        "price_dynamics_for_1_year": item["price_dynamics_for_1_year"],
-                        "hedge_funds": [],
-                    }
-                if item["hedge_fund_id"]:
-                    result[crypto_id]["hedge_funds"].append(
-                        {"id": item["hedge_fund_id"], "name": item["hedge_fund_name"]}
-                    )
-
-            # Convert result to list
-            result_list = list(result.values())
-
-            # Sort by price dynamics for 1 year in descending order
-            result_list.sort(
-                key=lambda x: (x["price_dynamics_for_1_year"]),
-                reverse=True,
+        if order not in ["asc", "desc"]:
+            return Response(
+                {"error": "Invalid order specified"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-            return Response(result_list, status=status.HTTP_200_OK)
+        try:
+            if period:
+                # Determine which field to use based on the period query parameter
+                if period == "1_year":
+                    price_dynamics_field = "price_dynamics_for_1_year"
+                elif period == "6_months":
+                    price_dynamics_field = "price_dynamics_for_6_months"
+                elif period == "3_months":
+                    price_dynamics_field = "price_dynamics_for_3_months"
+                elif period == "1_month":
+                    price_dynamics_field = "price_dynamics_for_1_month"
+                else:
+                    return Response(
+                        {"error": "Invalid period specified"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                # Filter cryptocurrencies with non-null price dynamics for the chosen period
+                cryptocurrencies = Cryptocurrency.objects.filter(
+                    **{f"{price_dynamics_field}__isnull": False}
+                ).prefetch_related("hedge_funds")
+
+                # Serialize the data
+                serializer = CryptocurrencySerializer(cryptocurrencies, many=True)
+                data = serializer.data
+
+                # Sort by price dynamics field
+                try:
+                    result = sorted(
+                        data,
+                        key=lambda x: Decimal(x.get(price_dynamics_field, 0)),
+                        reverse=(
+                            order == "desc"
+                        ),  # `reverse=True` for descending, `reverse=False` for ascending
+                    )
+                except (ValueError, TypeError):
+                    return Response(
+                        {"error": "Invalid data format for sorting"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            else:
+                # No period specified, sort by market cap by default
+                cryptocurrencies = Cryptocurrency.objects.all().prefetch_related(
+                    "hedge_funds"
+                )
+
+                # Serialize the data
+                serializer = CryptocurrencySerializer(cryptocurrencies, many=True)
+                data = serializer.data
+
+                # Sort by market cap
+                result = sorted(
+                    data,
+                    key=lambda x: Decimal(x.get("market_cap", 0)),
+                    reverse=(
+                        order == "desc"
+                    ),  # `reverse=True` for descending, `reverse=False` for ascending
+                )
+
+            return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class CryptocurrencyDetailAPIView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-#         query = """
-#             SELECT c.id AS cryptocurrency_id, c.name AS cryptocurrency_name, c.ticker, c.price, c.market_cap,
-#                    c.price_dynamics_for_1_year, c.price_dynamics_for_6_months,
-#                    c.price_dynamics_for_3_months, c.price_dynamics_for_1_month,
-#                    h.id AS hedge_fund_id, h.name AS hedge_fund_name
-#             FROM analytic_screener_cryptocurrency AS c
-#             LEFT JOIN analytic_screener_cryptocurrency_hedge_funds AS chf ON c.id = chf.cryptocurrency_id
-#             LEFT JOIN analytic_screener_hedgefund AS h ON chf.hedgefund_id = h.id
-#             WHERE c.id = %s
-#         """
-
-#         try:
-#             with connection.cursor() as cursor:
-#                 cursor.execute(query, [pk])
-#                 row = cursor.fetchone()
-
-#             if not row:
-#                 return Response(
-#                     {"error": "Cryptocurrency not found"},
-#                     status=status.HTTP_404_NOT_FOUND,
-#                 )
-
-#             # Convert row to a dictionary
-#             columns = [col[0] for col in cursor.description]
-#             data = dict(zip(columns, row))
-
-#             # Organize data into structured format
-#             result = {
-#                 "id": data["cryptocurrency_id"],
-#                 "name": data["cryptocurrency_name"],
-#                 "ticker": data["ticker"],
-#                 "price": data["price"],
-#                 "market_cap": data["market_cap"],
-#                 "price_dynamics_for_1_year": data["price_dynamics_for_1_year"],
-#                 "price_dynamics_for_6_months": data["price_dynamics_for_6_months"],
-#                 "price_dynamics_for_3_months": data["price_dynamics_for_3_months"],
-#                 "price_dynamics_for_1_month": data["price_dynamics_for_1_month"],
-#                 "hedge_funds": [],
-#             }
-
-#             if data["hedge_fund_id"]:
-#                 result["hedge_funds"].append(
-#                     {"id": data["hedge_fund_id"], "name": data["hedge_fund_name"]}
-#                 )
-
-#             return Response(result, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class HedgeFundsAPIView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request: HttpRequest) -> HttpResponse:
-        query = """
-            SELECT h.id AS hedge_fund_id, h.name AS hedge_fund_name,
-                   c.id AS cryptocurrency_id, c.name AS cryptocurrency_name, c.ticker, c.price, c.market_cap,
-                   c.price_dynamics_for_1_year, c.price_dynamics_for_6_months,
-                   c.price_dynamics_for_3_months, c.price_dynamics_for_1_month
-            FROM analytic_screener_hedgefund AS h
-            LEFT JOIN analytic_screener_cryptocurrency_hedge_funds AS chf ON h.id = chf.hedgefund_id
-            LEFT JOIN analytic_screener_cryptocurrency AS c ON chf.cryptocurrency_id = c.id
-        """
-
+    def get(self, request: HttpRequest, format: str = None) -> HttpResponse:
         try:
-            with connection.cursor() as cursor:
-                cursor.execute(query)
-                rows = cursor.fetchall()
+            # Use the correct related name in prefetch_related
+            hedge_funds = HedgeFund.objects.prefetch_related("cryptocurrencies").all()
+            serializer = HedgeFundSerializer(hedge_funds, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-            if not rows:
-                return Response(
-                    {"error": "No hedge funds found"}, status=status.HTTP_404_NOT_FOUND
-                )
-
-            # Convert rows to a list of dictionaries
-            columns = [col[0] for col in cursor.description]
-            data = [dict(zip(columns, row)) for row in rows]
-
-            # Organize data into structured format
-            result = {}
-            for item in data:
-                hedge_fund_id = item["hedge_fund_id"]
-                if hedge_fund_id not in result:
-                    result[hedge_fund_id] = {
-                        "id": hedge_fund_id,
-                        "name": item["hedge_fund_name"],
-                        "cryptocurrencies": [],
-                    }
-                if item["cryptocurrency_id"]:
-                    result[hedge_fund_id]["cryptocurrencies"].append(
-                        {
-                            "id": item["cryptocurrency_id"],
-                            "name": item["cryptocurrency_name"],
-                            "ticker": item["ticker"],
-                            "price": item["price"],
-                            "market_cap": item["market_cap"],
-                            "price_dynamics_for_1_year": item[
-                                "price_dynamics_for_1_year"
-                            ],
-                            "price_dynamics_for_6_months": item[
-                                "price_dynamics_for_6_months"
-                            ],
-                            "price_dynamics_for_3_months": item[
-                                "price_dynamics_for_3_months"
-                            ],
-                            "price_dynamics_for_1_month": item[
-                                "price_dynamics_for_1_month"
-                            ],
-                        }
-                    )
-
-            # Convert result to list
-            result_list = list(result.values())
-
-            return Response(result_list, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class HedgeFundsDetailAPIView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-#         query = """
-#             SELECT h.id AS hedge_fund_id, h.name AS hedge_fund_name,
-#                    c.id AS cryptocurrency_id, c.name AS cryptocurrency_name, c.ticker, c.price, c.market_cap,
-#                    c.price_dynamics_for_1_year, c.price_dynamics_for_6_months,
-#                    c.price_dynamics_for_3_months, c.price_dynamics_for_1_month
-#             FROM analytic_screener_hedgefund AS h
-#             LEFT JOIN analytic_screener_cryptocurrency_hedge_funds AS chf ON h.id = chf.hedgefund_id
-#             LEFT JOIN analytic_screener_cryptocurrency AS c ON chf.cryptocurrency_id = c.id
-#             WHERE h.id = %s
-#         """
-
-#         try:
-#             with connection.cursor() as cursor:
-#                 cursor.execute(query, [pk])
-#                 rows = cursor.fetchall()
-
-#             if not rows:
-#                 return Response(
-#                     {"error": "Hedge fund not found"}, status=status.HTTP_404_NOT_FOUND
-#                 )
-
-#             # Convert rows to a list of dictionaries
-#             columns = [col[0] for col in cursor.description]
-#             data = [dict(zip(columns, row)) for row in rows]
-
-#             # Organize data into structured format
-#             result = {
-#                 "id": data[0]["hedge_fund_id"],
-#                 "name": data[0]["hedge_fund_name"],
-#                 "cryptocurrencies": [],
-#             }
-
-#             for item in data:
-#                 if item["cryptocurrency_id"]:
-#                     result["cryptocurrencies"].append(
-#                         {
-#                             "id": item["cryptocurrency_id"],
-#                             "name": item["cryptocurrency_name"],
-#                             "ticker": item["ticker"],
-#                             "price": item["price"],
-#                             "market_cap": item["market_cap"],
-#                             "price_dynamics_for_1_year": item[
-#                                 "price_dynamics_for_1_year"
-#                             ],
-#                             "price_dynamics_for_6_months": item[
-#                                 "price_dynamics_for_6_months"
-#                             ],
-#                             "price_dynamics_for_3_months": item[
-#                                 "price_dynamics_for_3_months"
-#                             ],
-#                             "price_dynamics_for_1_month": item[
-#                                 "price_dynamics_for_1_month"
-#                             ],
-#                         }
-#                     )
-
-#             return Response(result, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

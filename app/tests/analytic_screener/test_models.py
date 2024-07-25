@@ -48,7 +48,7 @@ def test_cryptocurrency_creation():
 @pytest.mark.django_db
 def test_cryptocurrency_without_required_fields():
     # Try to create a Cryptocurrency without required fields
-    with pytest.raises(ValueError):
+    with pytest.raises(IntegrityError):
         Cryptocurrency.objects.create(
             name="Incomplete Crypto",
             ticker="INC",
