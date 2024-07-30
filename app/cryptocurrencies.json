@@ -1,219 +1,224 @@
 [
-    {
-      "model": "analytic_screener.hedgefund",
-      "pk": 1,
-      "fields": {
-        "name": "Hedge Fund Alpha"
-      }
-    },
-    {
-      "model": "analytic_screener.hedgefund",
-      "pk": 2,
-      "fields": {
-        "name": "Hedge Fund Beta"
-      }
-    },
-    {
-      "model": "analytic_screener.hedgefund",
-      "pk": 3,
-      "fields": {
-        "name": "Hedge Fund Gamma"
-      }
-    },
-    {
-      "model": "analytic_screener.hedgefund",
-      "pk": 4,
-      "fields": {
-        "name": "Hedge Fund Delta"
-      }
-    },
-    {
-      "model": "analytic_screener.hedgefund",
-      "pk": 5,
-      "fields": {
-        "name": "Hedge Fund Epsilon"
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 1,
-      "fields": {
-        "name": "Bitcoin",
-        "ticker": "BTC",
-        "price": 50000.00,
-        "market_cap": 900000000000,
-        "price_dynamics_for_1_year": 10.25,
-        "price_dynamics_for_6_months": 5.40,
-        "price_dynamics_for_3_months": -2.10,
-        "price_dynamics_for_1_month": 1.50
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 2,
-      "fields": {
-        "name": "Ethereum",
-        "ticker": "ETH",
-        "price": 4000.00,
-        "market_cap": 450000000000,
-        "price_dynamics_for_1_year": 15.75,
-        "price_dynamics_for_6_months": 8.20,
-        "price_dynamics_for_3_months": -3.00,
-        "price_dynamics_for_1_month": 2.10
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 3,
-      "fields": {
-        "name": "Ripple",
-        "ticker": "XRP",
-        "price": 1.20,
-        "market_cap": 60000000000,
-        "price_dynamics_for_1_year": 5.50,
-        "price_dynamics_for_6_months": 2.00,
-        "price_dynamics_for_3_months": -1.50,
-        "price_dynamics_for_1_month": 0.50
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 4,
-      "fields": {
-        "name": "Litecoin",
-        "ticker": "LTC",
-        "price": 150.00,
-        "market_cap": 10000000000,
-        "price_dynamics_for_1_year": 20.00,
-        "price_dynamics_for_6_months": 10.00,
-        "price_dynamics_for_3_months": -5.00,
-        "price_dynamics_for_1_month": 3.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 5,
-      "fields": {
-        "name": "Cardano",
-        "ticker": "ADA",
-        "price": 2.50,
-        "market_cap": 80000000000,
-        "price_dynamics_for_1_year": 30.00,
-        "price_dynamics_for_6_months": 12.00,
-        "price_dynamics_for_3_months": -4.00,
-        "price_dynamics_for_1_month": 4.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 6,
-      "fields": {
-        "name": "Polkadot",
-        "ticker": "DOT",
-        "price": 25.00,
-        "market_cap": 20000000000,
-        "price_dynamics_for_1_year": 40.00,
-        "price_dynamics_for_6_months": 15.00,
-        "price_dynamics_for_3_months": -2.50,
-        "price_dynamics_for_1_month": 5.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 7,
-      "fields": {
-        "name": "Chainlink",
-        "ticker": "LINK",
-        "price": 35.00,
-        "market_cap": 15000000000,
-        "price_dynamics_for_1_year": 25.00,
-        "price_dynamics_for_6_months": 7.00,
-        "price_dynamics_for_3_months": -1.00,
-        "price_dynamics_for_1_month": 6.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 8,
-      "fields": {
-        "name": "Stellar",
-        "ticker": "XLM",
-        "price": 0.60,
-        "market_cap": 12000000000,
-        "price_dynamics_for_1_year": 10.00,
-        "price_dynamics_for_6_months": 3.00,
-        "price_dynamics_for_3_months": -0.50,
-        "price_dynamics_for_1_month": 0.80
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 9,
-      "fields": {
-        "name": "Dogecoin",
-        "ticker": "DOGE",
-        "price": 0.25,
-        "market_cap": 35000000000,
-        "price_dynamics_for_1_year": 50.00,
-        "price_dynamics_for_6_months": 20.00,
-        "price_dynamics_for_3_months": -10.00,
-        "price_dynamics_for_1_month": 8.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 10,
-      "fields": {
-        "name": "Uniswap",
-        "ticker": "UNI",
-        "price": 20.00,
-        "market_cap": 15000000000,
-        "price_dynamics_for_1_year": 35.00,
-        "price_dynamics_for_6_months": 12.00,
-        "price_dynamics_for_3_months": -3.00,
-        "price_dynamics_for_1_month": 7.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 11,
-      "fields": {
-        "name": "Solana",
-        "ticker": "SOL",
-        "price": 150.00,
-        "market_cap": 40000000000,
-        "price_dynamics_for_1_year": 60.00,
-        "price_dynamics_for_6_months": 25.00,
-        "price_dynamics_for_3_months": -7.00,
-        "price_dynamics_for_1_month": 9.00
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 12,
-      "fields": {
-        "name": "Polygon",
-        "ticker": "MATIC",
-        "price": 1.80,
-        "market_cap": 15000000000,
-        "price_dynamics_for_1_year": 18.00,
-        "price_dynamics_for_6_months": 8.00,
-        "price_dynamics_for_3_months": -2.00,
-        "price_dynamics_for_1_month": 2.50
-      }
-    },
-    {
-      "model": "analytic_screener.cryptocurrency",
-      "pk": 13,
-      "fields": {
-        "name": "Aave",
-        "ticker": "AAVE",
-        "price": 350.00,
-        "market_cap": 4000000000,
-        "price_dynamics_for_1_year": 22.00,
-        "price_dynamics_for_6_months": 9.00,
-        "price_dynamics_for_3_months": -1.00,
-        "price_dynamics_for_1_month": 4.00
-      }
+  {
+    "model": "analytic_screener.hedgefund",
+    "pk": 1,
+    "fields": {
+      "name": "Hedge Fund Alpha",
+      "cryptocurrencies": [1, 2, 3]
     }
+  },
+  {
+    "model": "analytic_screener.hedgefund",
+    "pk": 2,
+    "fields": {
+      "name": "Hedge Fund Beta",
+      "cryptocurrencies": [4, 5, 6]
+    }
+  },
+  {
+    "model": "analytic_screener.hedgefund",
+    "pk": 3,
+    "fields": {
+      "name": "Hedge Fund Gamma",
+      "cryptocurrencies": [7, 8, 9] 
+    }
+  },
+  {
+    "model": "analytic_screener.hedgefund",
+    "pk": 4,
+    "fields": {
+      "name": "Hedge Fund Delta",
+      "cryptocurrencies": [10, 11, 12]
+    }
+  },
+  {
+    "model": "analytic_screener.hedgefund",
+    "pk": 5,
+    "fields": {
+      "name": "Hedge Fund Epsilon",
+      "cryptocurrencies": [13]
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 1,
+    "fields": {
+      "name": "Bitcoin",
+      "ticker": "BTC",
+      "price": 50000.00,
+      "market_cap": 900000000000,
+      "price_dynamics_for_1_year": 10.25,
+      "price_dynamics_for_6_months": 5.40,
+      "price_dynamics_for_3_months": -2.10,
+      "price_dynamics_for_1_month": 1.50
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 2,
+    "fields": {
+      "name": "Ethereum",
+      "ticker": "ETH",
+      "price": 4000.00,
+      "market_cap": 450000000000,
+      "price_dynamics_for_1_year": 15.75,
+      "price_dynamics_for_6_months": 8.20,
+      "price_dynamics_for_3_months": -3.00,
+      "price_dynamics_for_1_month": 2.10
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 3,
+    "fields": {
+      "name": "Ripple",
+      "ticker": "XRP",
+      "price": 1.20,
+      "market_cap": 60000000000,
+      "price_dynamics_for_1_year": 5.50,
+      "price_dynamics_for_6_months": 2.00,
+      "price_dynamics_for_3_months": -1.50,
+      "price_dynamics_for_1_month": 0.50
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 4,
+    "fields": {
+      "name": "Litecoin",
+      "ticker": "LTC",
+      "price": 150.00,
+      "market_cap": 10000000000,
+      "price_dynamics_for_1_year": 20.00,
+      "price_dynamics_for_6_months": 10.00,
+      "price_dynamics_for_3_months": -5.00,
+      "price_dynamics_for_1_month": 3.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 5,
+    "fields": {
+      "name": "Cardano",
+      "ticker": "ADA",
+      "price": 2.50,
+      "market_cap": 80000000000,
+      "price_dynamics_for_1_year": 30.00,
+      "price_dynamics_for_6_months": 12.00,
+      "price_dynamics_for_3_months": -4.00,
+      "price_dynamics_for_1_month": 4.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 6,
+    "fields": {
+      "name": "Polkadot",
+      "ticker": "DOT",
+      "price": 25.00,
+      "market_cap": 20000000000,
+      "price_dynamics_for_1_year": 40.00,
+      "price_dynamics_for_6_months": 15.00,
+      "price_dynamics_for_3_months": -2.50,
+      "price_dynamics_for_1_month": 5.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 7,
+    "fields": {
+      "name": "Chainlink",
+      "ticker": "LINK",
+      "price": 35.00,
+      "market_cap": 15000000000,
+      "price_dynamics_for_1_year": 25.00,
+      "price_dynamics_for_6_months": 7.00,
+      "price_dynamics_for_3_months": -1.00,
+      "price_dynamics_for_1_month": 6.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 8,
+    "fields": {
+      "name": "Stellar",
+      "ticker": "XLM",
+      "price": 0.60,
+      "market_cap": 12000000000,
+      "price_dynamics_for_1_year": 10.00,
+      "price_dynamics_for_6_months": 3.00,
+      "price_dynamics_for_3_months": -0.50,
+      "price_dynamics_for_1_month": 0.80
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 9,
+    "fields": {
+      "name": "Dogecoin",
+      "ticker": "DOGE",
+      "price": 0.25,
+      "market_cap": 35000000000,
+      "price_dynamics_for_1_year": 50.00,
+      "price_dynamics_for_6_months": 20.00,
+      "price_dynamics_for_3_months": -10.00,
+      "price_dynamics_for_1_month": 8.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 10,
+    "fields": {
+      "name": "Uniswap",
+      "ticker": "UNI",
+      "price": 20.00,
+      "market_cap": 15000000000,
+      "price_dynamics_for_1_year": 35.00,
+      "price_dynamics_for_6_months": 12.00,
+      "price_dynamics_for_3_months": -3.00,
+      "price_dynamics_for_1_month": 7.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 11,
+    "fields": {
+      "name": "Solana",
+      "ticker": "SOL",
+      "price": 150.00,
+      "market_cap": 40000000000,
+      "price_dynamics_for_1_year": 60.00,
+      "price_dynamics_for_6_months": 25.00,
+      "price_dynamics_for_3_months": -7.00,
+      "price_dynamics_for_1_month": 9.00
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 12,
+    "fields": {
+      "name": "Polygon",
+      "ticker": "MATIC",
+      "price": 1.80,
+      "market_cap": 15000000000,
+      "price_dynamics_for_1_year": 18.00,
+      "price_dynamics_for_6_months": 8.00,
+      "price_dynamics_for_3_months": -2.00,
+      "price_dynamics_for_1_month": 2.50
+    }
+  },
+  {
+    "model": "analytic_screener.cryptocurrency",
+    "pk": 13,
+    "fields": {
+      "name": "Aave",
+      "ticker": "AAVE",
+      "price": 350.00,
+      "market_cap": 4000000000,
+      "price_dynamics_for_1_year": 22.00,
+      "price_dynamics_for_6_months": 34.00,
+      "price_dynamics_for_3_months": 4.50,
+      "price_dynamics_for_1_month": 3.50
+    }
+  }
 ]

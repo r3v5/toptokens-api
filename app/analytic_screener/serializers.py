@@ -3,7 +3,16 @@ from rest_framework import serializers
 from .models import Cryptocurrency, HedgeFund, MarketIndicator
 
 
+class HedgeFundSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HedgeFund
+        fields = ["id", "name"]
+
+
 class CryptocurrencySerializer(serializers.ModelSerializer):
+    hedge_funds = HedgeFundSerializer(many=True, read_only=True)
+
     class Meta:
         model = Cryptocurrency
         fields = [
@@ -16,15 +25,8 @@ class CryptocurrencySerializer(serializers.ModelSerializer):
             "price_dynamics_for_6_months",
             "price_dynamics_for_3_months",
             "price_dynamics_for_1_month",
+            "hedge_funds",
         ]
-
-
-class HedgeFundSerializer(serializers.ModelSerializer):
-    cryptocurrencies = CryptocurrencySerializer(many=True, read_only=True)
-
-    class Meta:
-        model = HedgeFund
-        fields = ["id", "name", "cryptocurrencies"]
 
 
 class MarketIndicatorSerializer(serializers.ModelSerializer):

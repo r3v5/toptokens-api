@@ -1,11 +1,19 @@
 import pytest
-from analytic_screener.models import Cryptocurrency, HedgeFund
-from analytic_screener.serializers import CryptocurrencySerializer, HedgeFundSerializer
+from analytic_screener.models import Cryptocurrency, HedgeFund, MarketIndicator
+from analytic_screener.serializers import (
+    CryptocurrencySerializer,
+    HedgeFundSerializer,
+    MarketIndicatorSerializer,
+)
 
 
 @pytest.mark.django_db
 def test_cryptocurrency_serializer():
-    # Create a sample Cryptocurrency instance
+    # Create sample HedgeFunds
+    hedge_fund1 = HedgeFund.objects.create(name="Hedge Fund A")
+    hedge_fund2 = HedgeFund.objects.create(name="Hedge Fund B")
+
+    # Create a sample Cryptocurrency instance and associate it with hedge funds
     cryptocurrency = Cryptocurrency.objects.create(
         name="Bitcoin",
         ticker="BTC",
@@ -16,6 +24,7 @@ def test_cryptocurrency_serializer():
         price_dynamics_for_3_months=10.00,
         price_dynamics_for_1_month=5.00,
     )
+    cryptocurrency.hedge_funds.add(hedge_fund1, hedge_fund2)
 
     # Serialize the instance
     serializer = CryptocurrencySerializer(cryptocurrency)
@@ -32,47 +41,39 @@ def test_cryptocurrency_serializer():
     assert data["price_dynamics_for_3_months"] == "10.00"
     assert data["price_dynamics_for_1_month"] == "5.00"
 
+    # Check the nested hedge_funds data
+    hedge_funds_data = data["hedge_funds"]
+    assert len(hedge_funds_data) == 2
+    assert any(hf["name"] == "Hedge Fund A" for hf in hedge_funds_data)
+    assert any(hf["name"] == "Hedge Fund B" for hf in hedge_funds_data)
+
 
 @pytest.mark.django_db
 def test_hedge_fund_serializer():
     # Create a sample HedgeFund instance
     hedge_fund = HedgeFund.objects.create(name="Alpha Hedge Fund")
 
-    # Create sample Cryptocurrencies
-    crypto1 = Cryptocurrency.objects.create(
-        name="Ethereum",
-        ticker="ETH",
-        price=2000.00,
-        market_cap=200000000000,
-        price_dynamics_for_1_year=60.00,
-        price_dynamics_for_6_months=30.00,
-        price_dynamics_for_3_months=15.00,
-        price_dynamics_for_1_month=8.00,
-    )
-    crypto2 = Cryptocurrency.objects.create(
-        name="Ripple",
-        ticker="XRP",
-        price=1.00,
-        market_cap=50000000000,
-        price_dynamics_for_1_year=10.00,
-        price_dynamics_for_6_months=5.00,
-        price_dynamics_for_3_months=3.00,
-        price_dynamics_for_1_month=1.00,
-    )
-
-    # Add cryptocurrencies to hedge fund using the correct related name
-    hedge_fund.cryptocurrencies.add(crypto1, crypto2)
-
     # Serialize the hedge fund instance
     serializer = HedgeFundSerializer(hedge_fund)
     data = serializer.data
 
-    # Assert the serialized data
+    # Assert that the serialized data matches the expected output
     assert data["id"] == hedge_fund.id
     assert data["name"] == "Alpha Hedge Fund"
-    assert len(data["cryptocurrencies"]) == 2
 
-    # Check that the serialized cryptocurrency data is correct
-    crypto_data = data["cryptocurrencies"]
-    assert any(c["ticker"] == "ETH" for c in crypto_data)
-    assert any(c["ticker"] == "XRP" for c in crypto_data)
+
+@pytest.mark.django_db
+def test_market_indicator_serializer():
+    # Create a sample MarketIndicator instance
+    market_indicator = MarketIndicator.objects.create(
+        name="SPX Fear & Greed Index", value=35
+    )
+
+    # Serialize the instance
+    serializer = MarketIndicatorSerializer(market_indicator)
+    data = serializer.data
+
+    # Assert that the serialized data matches the expected output
+    assert data["id"] == market_indicator.id
+    assert data["name"] == market_indicator.name
+    assert data["value"] == market_indicator.value

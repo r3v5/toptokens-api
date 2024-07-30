@@ -7,6 +7,7 @@ from .models import Cryptocurrency, HedgeFund, MarketIndicator
 class HedgeFundAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+    filter_horizontal = ("cryptocurrencies",)
 
 
 @admin.register(Cryptocurrency)
@@ -19,7 +20,6 @@ class CryptocurrencyAdmin(admin.ModelAdmin):
         "price_dynamics_for_1_month",
     )
     search_fields = ("name", "ticker")
-    filter_horizontal = ("hedge_funds",)
 
 
 @admin.register(MarketIndicator)

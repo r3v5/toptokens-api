@@ -1,5 +1,5 @@
 import pytest
-from analytic_screener.models import Cryptocurrency, HedgeFund
+from analytic_screener.models import Cryptocurrency, HedgeFund, MarketIndicator
 from django.db.utils import IntegrityError
 
 
@@ -56,3 +56,15 @@ def test_cryptocurrency_without_required_fields():
             market_cap=None,  # Missing market cap
             price_dynamics_for_1_year=None,
         )
+
+
+@pytest.mark.django_db
+def test_market_indicator_model():
+    crypto_fear_and_greed_index = MarketIndicator.objects.create(
+        name="Crypto Fear & Greed Index", value=71
+    )
+    retrieved_crypto_fear_and_greed_index = MarketIndicator.objects.get(
+        id=crypto_fear_and_greed_index.id
+    )
+    assert retrieved_crypto_fear_and_greed_index.name == "Crypto Fear & Greed Index"
+    assert retrieved_crypto_fear_and_greed_index.value == 71

@@ -40,17 +40,15 @@ def test_cryptocurrency_url(api_client, create_user_with_tokens):
 
 
 @pytest.mark.django_db
-def test_hedge_funds_url(api_client, create_user_with_tokens):
+def test_market_indicators_url(api_client, create_user_with_tokens):
     user, access_token = create_user_with_tokens
-    url = reverse("hedge-funds")  # Use reverse to get the URL from the view name
+    url = reverse("market-indicators")
     response = api_client.get(url, HTTP_AUTHORIZATION=f"Bearer {access_token}")
 
-    # Verify that the response status code is 200 OK
     assert response.status_code == status.HTTP_200_OK
 
-    # Verify the content of the response
-    assert isinstance(response.data, list)  # Ensure response is a list of hedge funds
+    assert isinstance(response.data, list)
     if response.data:
         assert "id" in response.data[0]
         assert "name" in response.data[0]
-        assert "cryptocurrencies" in response.data[0]
+        assert "value" in response.data[0]
