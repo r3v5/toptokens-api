@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Cryptocurrency, HedgeFund
+from .models import Cryptocurrency, HedgeFund, MarketIndicator
 
 
 class CryptocurrencySerializer(serializers.ModelSerializer):
@@ -25,3 +25,10 @@ class HedgeFundSerializer(serializers.ModelSerializer):
     class Meta:
         model = HedgeFund
         fields = ["id", "name", "cryptocurrencies"]
+
+
+class MarketIndicatorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MarketIndicator
+        fields = ["id", "name", "value"]

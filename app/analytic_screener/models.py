@@ -32,3 +32,11 @@ class Cryptocurrency(models.Model):
 
     def __str__(self):
         return f"{self.ticker} - {self.name}"
+
+
+class MarketIndicator(models.Model):
+    name = models.CharField(max_length=256, blank=False, null=False)
+    value = models.PositiveIntegerField(blank=False, null=False)
+
+    def __str__(self):
+        return f"{self.name}: {self.value}"

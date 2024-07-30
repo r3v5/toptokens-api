@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Cryptocurrency, HedgeFund
+from .models import Cryptocurrency, HedgeFund, MarketIndicator
 
 
 @admin.register(HedgeFund)
@@ -20,3 +20,9 @@ class CryptocurrencyAdmin(admin.ModelAdmin):
     )
     search_fields = ("name", "ticker")
     filter_horizontal = ("hedge_funds",)
+
+
+@admin.register(MarketIndicator)
+class MarketIndicatorAdmin(admin.ModelAdmin):
+    list_display = ("name", "value")
+    search_fields = ("name", "value")

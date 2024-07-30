@@ -7,8 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import Cryptocurrency, HedgeFund
-from .serializers import CryptocurrencySerializer, HedgeFundSerializer
+from .models import Cryptocurrency, HedgeFund, MarketIndicator
+from .serializers import (
+    CryptocurrencySerializer,
+    HedgeFundSerializer,
+    MarketIndicatorSerializer,
+)
 
 
 class CryptocurrencyAPIView(APIView):
@@ -105,6 +109,20 @@ class HedgeFundsAPIView(APIView):
             # Use the correct related name in prefetch_related
             hedge_funds = HedgeFund.objects.prefetch_related("cryptocurrencies").all()
             serializer = HedgeFundSerializer(hedge_funds, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MarketIndicatorAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        try:
+            market_indicators = MarketIndicator.objects.all()
+            serializer = MarketIndicatorSerializer(market_indicators, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
