@@ -1,4 +1,5 @@
 import pytest
+from analytic_screener.models import MarketRecommendation
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -52,3 +53,36 @@ def test_market_indicators_url(api_client, create_user_with_tokens):
         assert "id" in response.data[0]
         assert "name" in response.data[0]
         assert "value" in response.data[0]
+
+
+@pytest.mark.django_db
+def test_market_recommendations_url(api_client, create_user_with_tokens):
+    user, access_token = create_user_with_tokens
+    # Create sample MarketRecommendation instances
+    MarketRecommendation.objects.create(type="buy", index_name="S&P 500", value=0.5)
+    MarketRecommendation.objects.create(type="sell", index_name="NASDAQ", value=-0.3)
+
+    url = reverse("market-recommendations")
+    response = api_client.get(url, HTTP_AUTHORIZATION=f"Bearer {access_token}")
+
+    assert response.status_code == status.HTTP_200_OK
+
+    # Verify the structure of the response
+    assert "buy_recommendations" in response.data
+    assert "sell_recommendations" in response.data
+    assert isinstance(response.data["buy_recommendations"], list)
+    assert isinstance(response.data["sell_recommendations"], list)
+
+    # Check contents of buy_recommendations
+    if response.data["buy_recommendations"]:
+        assert "type" in response.data["buy_recommendations"][0]
+        assert "index_name" in response.data["buy_recommendations"][0]
+        assert "value" in response.data["buy_recommendations"][0]
+        assert "created_at" in response.data["buy_recommendations"][0]
+
+    # Check contents of sell_recommendations
+    if response.data["sell_recommendations"]:
+        assert "type" in response.data["sell_recommendations"][0]
+        assert "index_name" in response.data["sell_recommendations"][0]
+        assert "value" in response.data["sell_recommendations"][0]
+        assert "created_at" in response.data["sell_recommendations"][0]

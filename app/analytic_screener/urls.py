@@ -13,4 +13,9 @@ urlpatterns = [
         views.MarketIndicatorAPIView.as_view(),
         name="market-indicators",
     ),
+    path(
+        "market-recommendations/",
+        views.MarketRecommendationsAPIView.as_view(),
+        name="market-recommendations",
+    ),
 ]

@@ -1,5 +1,10 @@
 import pytest
-from analytic_screener.models import Cryptocurrency, HedgeFund, MarketIndicator
+from analytic_screener.models import (
+    Cryptocurrency,
+    HedgeFund,
+    MarketIndicator,
+    MarketRecommendation,
+)
 from django.db.utils import IntegrityError
 
 
@@ -26,7 +31,6 @@ def test_cryptocurrency_creation():
         ticker="BTC",
         price=30000.00,
         market_cap=600000000000,
-        price_dynamics_for_1_year=0.50,
     )
     cryptocurrency.hedge_funds.add(hedge_fund)
 
@@ -38,7 +42,6 @@ def test_cryptocurrency_creation():
     assert retrieved_cryptocurrency.ticker == "BTC"
     assert retrieved_cryptocurrency.price == 30000.00
     assert retrieved_cryptocurrency.market_cap == 600000000000
-    assert retrieved_cryptocurrency.price_dynamics_for_1_year == 0.50
 
     # Check the related HedgeFunds
     assert retrieved_cryptocurrency.hedge_funds.count() == 1
@@ -52,9 +55,8 @@ def test_cryptocurrency_without_required_fields():
         Cryptocurrency.objects.create(
             name="Incomplete Crypto",
             ticker="INC",
-            price=None,  # Missing price
-            market_cap=None,  # Missing market cap
-            price_dynamics_for_1_year=None,
+            price=None,
+            market_cap=None,
         )
 
 
@@ -68,3 +70,22 @@ def test_market_indicator_model():
     )
     assert retrieved_crypto_fear_and_greed_index.name == "Crypto Fear & Greed Index"
     assert retrieved_crypto_fear_and_greed_index.value == 71
+
+
+@pytest.mark.django_db
+def test_market_recommendation_creation():
+    # Create a MarketRecommendation instance
+    market_recommendation = MarketRecommendation.objects.create(
+        type="buy", index_name="Crypto Market", value=30
+    )
+
+    # Retrieve the MarketRecommendation instance from the database
+    retrieved_market_recommendation = MarketRecommendation.objects.get(
+        id=market_recommendation.id
+    )
+
+    # Check if the MarketRecommendation was created and retrieved correctly
+    assert retrieved_market_recommendation.type == "buy"
+    assert retrieved_market_recommendation.index_name == "Crypto Market"
+    assert retrieved_market_recommendation.value == 30
+    assert retrieved_market_recommendation.created_at is not None

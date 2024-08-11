@@ -6,18 +6,6 @@ class Cryptocurrency(models.Model):
     ticker = models.CharField(max_length=20, blank=False, null=False)
     price = models.FloatField(blank=False, null=False)
     market_cap = models.PositiveBigIntegerField(blank=False, null=False)
-    price_dynamics_for_1_year = models.DecimalField(
-        max_digits=7, decimal_places=2, blank=True, null=True
-    )
-    price_dynamics_for_6_months = models.DecimalField(
-        max_digits=7, decimal_places=2, blank=True, null=True
-    )
-    price_dynamics_for_3_months = models.DecimalField(
-        max_digits=7, decimal_places=2, blank=True, null=True
-    )
-    price_dynamics_for_1_month = models.DecimalField(
-        max_digits=7, decimal_places=2, blank=True, null=True
-    )
 
     def __str__(self):
         return f"{self.ticker} - {self.name}"
@@ -40,3 +28,20 @@ class MarketIndicator(models.Model):
 
     def __str__(self):
         return f"{self.name}: {self.value}"
+
+
+class MarketRecommendation(models.Model):
+    RECOMMENDATION_TYPES = [
+        ("buy", "Buy"),
+        ("sell", "Sell"),
+    ]
+
+    type = models.CharField(
+        max_length=10, choices=RECOMMENDATION_TYPES, blank=False, null=False
+    )
+    index_name = models.CharField(max_length=256, blank=False, null=False)
+    value = models.PositiveIntegerField(blank=False, null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.index_name} - {self.type.capitalize()} ({self.value})"

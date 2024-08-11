@@ -19,6 +19,11 @@ urlpatterns = [
     ),
     path(
         "token/delete-tokens-with-none-users/",
+        views.DeleteRefreshTokenWithNoneUserAPIView.as_view(),
+        name="token-delete",
+    ),
+    path(
+        "token/delete-tokens-with-none-users/",
         views.DeleteRefreshTokenAPIView.as_view(),
         name="token-delete",
     ),
