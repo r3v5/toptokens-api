@@ -1,39 +1,13 @@
-# TopTokens
+# **TopTokens**
+★ TopTokens is an API that provides analytic screener that sends market recommendations about sell or buy cryptocurrencies that are backed by tier 1 hedge funds based on market situation that is explained by CNN SPX Fear & Greed Index and Crypto Fear & Greed Index. Processing only reliable tokens that are having at least $100,000,000 market cap.
 
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-<!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
-
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/r3v5/toptokens-api/">
-    <img src="https://github.com/r3v5/toptokens-api/blob/dev/toptokens-high-resolution-logo.png" alt="Logo" width="80" height="80">
-  </a>
 
   <h3 align="center">TopTokens API</h3>
 
   <p align="center">
-    Whitepaper for TopTokens
+    Documentation for TopTokens API Rest protocol
     <br />
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://www.linkedin.com/in/ian-miller-620a63245/">Report Bug</a>
-    ·
-    <a href="https://www.linkedin.com/in/ian-miller-620a63245/">Request Feature</a>
   </p>
 </div>
 
@@ -44,247 +18,487 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#toptokens-whitepaper">TopTokens Whitepaper</a>
+      <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#system-design">System Design</a></li>
+      <li><a href="#system-design-overview">System Design Overview</a></li>
+      <li><a href="#system-design-in-depth">System Design In Depth</a></li>
+       <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
     <li>
-      <a href="#build-with">Build With</a>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    </li>
   </ol>
 </details>
 
 
 
-<!-- TopTokens Whitepaper -->
-## TopTokens Whitepaper
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+TopTokens is an API that provides analytic screener that sends market recommendations about sell or buy cryptocurrencies that are backed by tier 1 hedge funds based on market situation that is explained by CNN SPX Fear & Greed Index and Crypto Fear & Greed Index. Processing only reliable tokens that are having at least $100,000,000 market cap. If Fear & Greed Index less than 45, api sends BUY recommendation and if Fear & Greed Index more than 55, api sends SELL recommendation.
 
-Product: TopTokens is a user-friendly screener of cryptocurrencies 
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
-What problem is solving:
-* Provides analytic screener of tokens that are backed by tier 1 hedge funds that shows attractiveness for buying or selling based on market situation that is explained by CNN SPX and Crypto fear and greed index and dynamics of price of instrument on the specific range of time.
-* Shows what tokens fell more than others or grew more than others -> percentage for 1 month, percentage for 3 month, percentage for 6 month, percentage for 1 year.
-
-Constraints: Only tokens that are backed by tier 1 hedge funds and the following caps: large cap($1B <= cap) and mid cap($100,000,000 < cap < $1B)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### System Design Overview
+![System Design](https://raw.githubusercontent.com/r3v5/toptokens-api/dev/toptokens-system-design.png)
 
 
+### System Design In Depth
+**System Design Architecture for Buffettsbot**
 
-### System Design
+**1. Backend (Django Rest Framework)**
+•  **Users**: 
+Signup - ```curl -X POST http://127.0.0.1:1337/api/v1/users/signup/ \
+     -H "Content-Type: application/json" \
+     -d '{
+           "email": "t@gmail.com",
+           "password": "12345678",
+           "password_confirm": "12345678"
+         }'``` 
+Example response: {
+"id":  1,
+"email":  "t@gmail.com"
+}
 
-Backend has two apps:
-- users:
-    ```
-    1. api/users/v1/signup/
-    2. api/users/v1/login/
-    3. api/users/v1/logout/
-    4. api/users/v1/token/refresh/
-    5. api/users/v1/token/verify/
-    6. api/users/v1/token/delete-tokens-with-none-users/
-    7. api/users/v1/profile/
-    8. api/users/v1/delete-profile/
-    ```
-          
-- analytic_screener (data from Coingecko and CNN):
-    ```
-    !! Use Redis Cache for caching api responses from endpoints since we only have 10k monthly calls
-    !! Use Raw SQL to optimise Response time from API
-    1. api/v1/tokens/
-    2. api/v1/tokens/ticker/ - specific info
-    3. api/v1/fear-and-greed/
-    ```
-```      
-Models:
-CustomUser:
-    email
+Login - ```curl -X POST http://127.0.0.1:1337/api/v1/users/login/ \
+     -H "Content-Type: application/json" \
+     -d '{
+           "email": "t@gmail.com",
+           "password": "12345678"
+         }'```
+ Example response: {
+``"access_token":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIzNDI0NjM0LCJpYXQiOjE3MjM0MjQ1MTQsImp0aSI6ImU5YjNhYmM0YTUyNjQxZmQ4NTIyYTNiYzc1YTFjMTk1IiwidXNlcl9pZCI6MX0.TNqzEHzUAWJu1mkjrgzL7MZf3GatnUeMnOfQekb56mY",``
 
-Cryptocurrency:
-      name: str
-      ticker: str
-      price: float
-      market_cap: float
-      funds: ManyToMany(HedgeFund)
-      dynamics_for_1_year: float -inf +inf
-      dynamics_for_6_months: float -inf +inf
-      dynamics_for_3_months: float -inf +inf
-      dynamics_for_1_month: float -inf +inf
+``"refresh_token":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyMzQyNDc1NCwiaWF0IjoxNzIzNDI0NTE0LCJqdGkiOiIxMzAyMDUxYjU4MTM0ZTczODRlZWVkZjZkNDc5OTgwMSIsInVzZXJfaWQiOjF9.0jDGiT73JzZmcNb8VyWJzMHNDgr3hTk2HZReRvJcPcE"``
+}
+         
+Logout - ```curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" -X POST http://127.0.0.1:1337/api/v1/users/logout/ \
+     -H "Content-Type: application/json" \
+     -d '{
+           "refresh_token": <YOUR_REFRESH_TOKEN>,
+         }'```
+Example response:
+{
+"message":  "Logout successfully"
+}
+        
+ Refresh token - ```curl -X POST http://127.0.0.1:1337/api/v1/users/token/refresh/ \
+     -H "Content-Type: application/json" \
+     -d '{
+           "refresh": <YOUR_REFRESH_TOKEN>,
+         }'```
+ Example response: 
+{``"access":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIzNDI0ODIzLCJpYXQiOjE3MjM0MjQ2NzksImp0aSI6ImNlMzE4YTk3YjcwYjQ2MGQ5ZjllZWYzNTBmOTBkNWE0IiwidXNlcl9pZCI6MX0.F4F68gv4ZlNnPoKJUTNGFUMCrJCl8RH8sg8sb0gh7ts"``}
 
-HedgeFund:
-      name: str
-      holdings: ManyToMany(Cryptocurrency)
+
+ Verify Token - ```curl -X POST http://127.0.0.1:1337/api/v1/users/token/verify/\
+     -H "Content-Type: application/json" \
+     -d '{
+           "refresh_token": <YOUR_REFRESH_TOKEN>,
+         }'```
+ Example response:
+ {
+``"message":  "Refresh token is valid."``
+}
+
+ Profile - ```curl -X GET http://127.0.0.1:1337/api/v1/users/profile/ \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"```
+Example response: 
+{
+``"email":  "t@gmail.com",
+"date_joined":  "2024-08-12"``
+}
+ 
+ Delete profile - ```curl -X DELETE http://127.0.0.1:1337/api/v1/users/delete-profile/ \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"```
+
+ Delete tokens with None users - ```curl -X DELETE http://127.0.0.1:1337/api/v1/users/token/delete-tokens-with-none-users/```
+
+•  **Analytic screener**:
+ List of Cryptocurrencies that are backed by tier 1 hedge funds and have at least $100,000,000 market cap  - ```curl -X GET http://127.0.0.1:1337/api/v1/analytic-screener/cryptocurrencies/ \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"```
+ Example response: 
+  [
+
+{
+
+"id":  1,
+
+"name":  "Ethereum",
+
+"ticker":  "ETH",
+
+"price":  2537.59,
+
+"market_cap":  305490398140,
+
+"hedge_funds":  [
+
+{
+
+"id":  1,
+
+"name":  "Andreessen Horowitz"
+
+},
+
+{
+
+"id":  3,
+
+"name":  "Galaxy Digital"
+
+},
+
+{
+
+"id":  8,
+
+"name":  "Multicoin Capital"
+
+},
+
+{
+
+"id":  11,
+
+"name":  "Delphi Digital"
+
+}
+
+]
+
+},
+
+{
+
+"id":  2,
+
+"name":  "Solana",
+
+"ticker":  "SOL",
+
+"price":  142.85,
+
+"market_cap":  66735204199,
+
+"hedge_funds":  [
+
+{
+
+"id":  1,
+
+"name":  "Andreessen Horowitz"
+
+},
+
+{
+
+"id":  8,
+
+"name":  "Multicoin Capital"
+
+},
+
+{
+
+"id":  11,
+
+"name":  "Delphi Digital"
+
+}
+
+]
+
+},
+
+{
+
+"id":  3,
+
+"name":  "XRP",
+
+"ticker":  "XRP",
+
+"price":  0.555332,
+
+"market_cap":  31174287222,
+
+"hedge_funds":  [
+
+{
+
+"id":  1,
+
+"name":  "Andreessen Horowitz"
+
+},
+
+{
+
+"id":  6,
+
+"name":  "Pantera Capital"
+
+},
+
+{
+
+"id":  10,
+
+"name":  "Blockchain Capital"
+
+}
+
+]
+
+},
+
+{
+
+"id":  54,
+
+"name":  "Toncoin",
+
+"ticker":  "TON",
+
+"price":  6.19,
+
+"market_cap":  15588430133,
+
+"hedge_funds":  [
+
+{
+
+"id":  6,
+
+"name":  "Pantera Capital"
+
+},
+
+{
+
+"id":  5,
+
+"name":  "Animoca Brands"
+
+}
+
+]
+
+},
+
+ CNN SPX Fear & Greed Index and Crypto Fear & Greed Index  - ```curl -X GET http://127.0.0.1:1337/api/v1/analytic-screener/market-indicators/ \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"```
+ Example response:
+ [
+
+{
+
+"id":  1,
+
+"name":  "Fear & Greed Stock Market Index",
+
+"value":  24
+
+},
+
+{
+
+"id":  2,
+
+"name":  "Fear & Greed Crypto Market Index",
+
+"value":  25
+
+}
+
+]
+
+Get market recommendations for today  - ```curl -X GET http://127.0.0.1:1337/api/v1/analytic-screener/market-recommendations/ \
+     -H "Authorization: Bearer YOUR_ACCESS_TOKEN"```
+ Example response: 
+ {
+
+"buy_recommendations":  [
+
+{
+
+"type":  "buy",
+
+"index_name":  "Fear & Greed Stock Market",
+
+"value":  24,
+
+"created_at":  "August 12, 2024, 02:12 AM"
+
+},
+
+{
+
+"type":  "buy",
+
+"index_name":  "Fear & Greed Crypto Market",
+
+"value":  25,
+
+"created_at":  "August 12, 2024, 02:12 AM"
+
+}
+
+],
+
+"sell_recommendations":  []
+
+}
+
+•  **Celery Task Queue for mining data about tier 1 hedge funds portfolios and updating market indicators values**:
+```
+# Configure Celery Beat
+
+app.conf.beat_schedule = {
+
+"parse_tier_1_portfolios": {
+
+"task": "analytic_screener.tasks.parse_tier_1_portfolios",
+
+"schedule": timedelta(seconds=20),
+
+},
+
+"update_fear_and_greed_indices": {
+
+"task": "analytic_screener.tasks.update_fear_and_greed_indices",
+
+"schedule": timedelta(seconds=20),
+
+},
+
+}
+
   
-MarketIndicator:
-      name: str 
-      value: int
 
-
-Celery tasks:
-  - parse hedge funds portfolios and create objects for Django models 
-  - Get all cryptocurrencies from db and calculate dynamics for each object and update fields in model if necessary and update prices and market cap if changed 
+app.autodiscover_tasks()
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+**2. Database (PostgreSQL)**
+•  **Tables**:
+- **CustomUser**: Stores data about user
+  - **Fields**:
+    - `email`: EmailField, Primary Key, unique, used as the username for authentication.
+    - `is_staff`: Boolean, Flag to indicate if the user has staff privileges or not.
+    - `is_active`: Boolean, Flag to indicate if the user’s account is active.
+    - `date_joined`: DateTimeField, Timestamp of when the user joined the system.
+ 
+- **Cryptocurrency**: Represents a cryptocurrency
+  - **Fields**:
+    - `name`: CharField, Name of the cryptocurrency.
+    - `ticker`: CharField, Abbreviation or symbol of the cryptocurrency.
+    - `price`: FloatField, Current price of the cryptocurrency.
+    - `market_cap`: PositiveBigIntegerField, Market capitalization of the cryptocurrency.
+   
+- ******HedgeFund******: Represents a hedge fund
+  - **Fields**:
+    - `name`: CharField, Name of the hedge fund.
+    - `cryptocurrencies`: ManyToManyField, Links to multiple Cryptocurrency instances, indicating which cryptocurrencies the hedge fund is associated with.
+
+- ****MarketIndicator****: Represents a market indicator
+  - **Fields**:
+    - `name`: CharField, Name of the market indicator.
+    - `value`: PositiveIntegerField, Value of the market indicator.
+
+- ******MarketRecommendation******: Represents a market recommendation
+  - **Fields**:
+    - `type`: CharField, ChoiceField indicating the type of recommendation ("buy" or "sell").
+    - `index_name`: CharField, Name of the index or recommendation source.
+    - `value`: PositiveIntegerField, Value associated with the recommendation.
+    - `created_at`: DateTimeField, Timestamp of when the recommendation was created.
+  
+   
+
+
+
+
+**4. Deployment & Infrastructure**
+
+•  **Docker Containers**: Used for containerizing the Django application, PostgreSQL database, NGINX reverse proxy server, Redis as message broker and Celery workers that are long-running processes that constantly monitor the task queues for new work and Celery Beat that a single process that schedules periodic tasks
+
+•  **Docker Compose**: Manages multi-container Docker applications.
+
+### Built With
+
+ <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=python,django,docker,postgres,redis,nginx" />
+  </a>
+
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+1. Get a free API Key at [https://docs.coingecko.com/reference/setting-up-your-api-key](https://docs.coingecko.com/reference/setting-up-your-api-key)
 
-1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   https://github.com/r3v5/toptokens-api
    ```
-3. Install NPM packages
+3. Navigate to the project directory
    ```sh
-   npm install
+   cd toptokens-api
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+4. Create a .env.dev file
    ```
+   DEBUG=1
+   SECRET_KEY=foo
+   DJANGO_ALLOWED_HOSTS=localhost  127.0.0.1 [::1]
+   SQL_ENGINE=django.db.backends.postgresql
+   SQL_DATABASE=toptokensdb
+   SQL_USER=toptokensadmin
+   SQL_PASSWORD=toptokensadmin
+   SQL_HOST=toptokens-db
+   SQL_PORT=5432
+   DATABASE=postgres
+   POSTGRES_USER=toptokensadmin
+   POSTGRES_PASSWORD=toptokensadmin
+   POSTGRES_DB=toptokensdb
+   CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
+   COINGECKO_API_KEY=<YOUR-API-KEY>``
+  
+  5. Start building docker containers with app and run:
+   ```
+   docker compose -f docker-compose.dev.yml up --build
+   ```
+  6. Run tests:
+   ```
+   docker compose -f docker-compose.dev.yml exec toptokens-api pytest
+   ```
+### Tests Passed
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+![Tests Passed](https://raw.githubusercontent.com/r3v5/toptokens-api/main/tests-passed.png)
+   
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
 
 
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Ian Miller - [linkedin](https://www.linkedin.com/in/ian-miller-620a63245/) 
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/r3v5/toptokens-api](https://github.com/r3v5/toptokens-api)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#about-the-project">back to top</a>)</p>
 
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://www.linkedin.com/in/ian-miller-620a63245/
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
