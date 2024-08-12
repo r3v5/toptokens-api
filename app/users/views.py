@@ -116,25 +116,6 @@ class LogoutAPIView(APIView):
         )
 
 
-class DeleteRefreshTokenWithNoneUserAPIView(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
-
-    def delete(self, request: HttpRequest) -> HttpResponse:
-        try:
-            OutstandingToken.objects.filter(user=None).delete()
-
-            return Response(
-                {"message": "Tokens associated with Null users are deleted"},
-                status=status.HTTP_204_NO_CONTENT,
-            )
-        except Exception as e:
-            return Response(
-                {"message": f"Error during deleting tokens: {str(e)}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-
 class VerifyRefreshTokenAPIView(APIView):
 
     def post(self, request: HttpRequest) -> HttpResponse:

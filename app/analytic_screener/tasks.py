@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 
 import requests
@@ -28,7 +29,7 @@ def parse_tier_1_portfolios():
     }
     headers = {
         "accept": "application/json",
-        "x-cg-demo-api-key": "CG-pQ9qLFdRDAstYmPv6NRr9pYR",
+        "x-cg-demo-api-key": os.environ.get("COINGECKO_API_KEY"),
     }
 
     for hedge_fund_name, url in urls.items():
