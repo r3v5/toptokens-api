@@ -474,7 +474,7 @@ app.autodiscover_tasks()
    CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
    COINGECKO_API_KEY=<YOUR-API-KEY>``
   
-  5. Start building docker containers with app and run:
+  5. Start building docker containers for API, Nginx, PostgreSQL, Redis, Celery worker, Celery-beat and up them:
    ```
    docker compose -f docker-compose.yml up --build
    ```
