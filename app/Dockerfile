@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.11.2-slim-buster
+FROM python:3.11.4-slim-buster
 
 # set working directory
 WORKDIR /usr/src/app
@@ -20,11 +20,13 @@ COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy entrypoint.sh
-COPY ./entrypoint.dev.sh /usr/src/app/entrypoint.dev.sh
-RUN chmod +x /usr/src/app/entrypoint.dev.sh
+COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
 
 # add app
 COPY . .
 
+RUN mkdir -p /usr/src/app/staticfiles /usr/src/app/mediafiles
+
 # run entrypoint.sh
-ENTRYPOINT ["/usr/src/app/entrypoint.dev.sh"]
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

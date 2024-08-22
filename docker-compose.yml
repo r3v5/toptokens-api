@@ -2,17 +2,33 @@ services:
   toptokens-api:
     build:
       context: ./app
-      dockerfile: Dockerfile.dummy
-    command: python manage.py runserver 0.0.0.0:8000
+      dockerfile: Dockerfile
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./app/:/usr/src/app/
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/mediafiles
     ports:
       - 8000:8000
     env_file:
       - ./.env.dev
     depends_on:
       - toptokens-db
-    
+      - redis
+  
+  nginx:
+    build: ./nginx_dev
+    restart: always
+    volumes:
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/mediafiles
+    ports:
+      - 1337:80
+    depends_on:
+      - toptokens-api
+    links:
+      - redis
+  
   toptokens-db:
     image: postgres:15
     volumes:
@@ -20,6 +36,10 @@ services:
     restart: always
     env_file:
       - ./.env.dev
+    ports:
+      - "5432:5432"
+    links:
+      - redis
 
   redis:
     image: redis:7.2.5-alpine
@@ -33,12 +53,14 @@ services:
   worker:
     build:
       context: ./app
-      dockerfile: Dockerfile.dummy
+      dockerfile: Dockerfile
     hostname: worker
     entrypoint: celery
     command: -A celery_app.app worker --loglevel=info
     volumes:
       - ./app/:/usr/src/app/
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/mediafiles
     links:
       - redis
     depends_on:
@@ -53,12 +75,14 @@ services:
   celery-beat:
     build:
       context: ./app
-      dockerfile: Dockerfile.dummy
+      dockerfile: Dockerfile
     hostname: celery-beat
     entrypoint: celery
     command: -A celery_app.app beat --loglevel=info
     volumes:
       - ./app/:/usr/src/app/
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/mediafiles
     depends_on:
       - redis
       - toptokens-db
@@ -70,4 +94,6 @@ services:
   
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
   redis_data:

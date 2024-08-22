@@ -476,11 +476,26 @@ app.autodiscover_tasks()
   
   5. Start building docker containers with app and run:
    ```
-   docker compose -f docker-compose.dev.yml up --build
+   docker compose -f docker-compose.yml up --build
    ```
-  6. Run tests:
+  6. Make migrations, apply them and collect staticfiles:
    ```
-   docker compose -f docker-compose.dev.yml exec toptokens-api pytest
+   docker compose -f docker-compose.yml exec toptokens-api python manage.py makemigrations
+   docker compose -f docker-compose.yml exec toptokens-api python manage.py migrate
+   docker compose -f docker-compose.yml exec toptokens-api python manage.py collectstatic --no-input --clear
+   ```
+   7. Create Django superuser to grant access to Django admin panel:
+   ```
+   docker compose -f docker-compose.yml exec toptokens-api python manage.py createsuperuser
+   ``` 
+  8. Run tests:
+   ```
+   docker compose -f docker-compose.yml exec toptokens-api pytest
+   ```
+  9. Navigate to Django Admin Panel by this url http://localhost:1337/admin/login/?next=/admin/ and access the content of database with cryptocurrency data:
+   ```
+   Email address: email address you used to create superuser
+   Password: password you used to create superuser
    ```
 ### Tests Passed
 
