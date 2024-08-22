@@ -388,6 +388,8 @@ app.autodiscover_tasks()
 ```
 
 **2. Database (PostgreSQL)**
+## TopTokens Database Overview
+![System Design](https://raw.githubusercontent.com/r3v5/toptokens-api/dev/toptokens-database.png)
 •  **Tables**:
 - **CustomUser**: Stores data about user
   - **Fields**:
