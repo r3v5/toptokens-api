@@ -3852,6 +3852,8 @@ app.autodiscover_tasks()
 
 •  **Microsoft Azure Linux Ubuntu**: VM with 2 CPUs and 4gb RAM
 
+•  **Microsoft Azure Container Registries**: Two repositories for toptokens-api and nginx
+
 ### Built With
 
  <a href="https://skillicons.dev">
