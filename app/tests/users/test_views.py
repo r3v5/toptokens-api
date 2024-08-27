@@ -124,37 +124,3 @@ def test_logout_unauthenticated(api_client):
     url = reverse("logout")
     response = api_client.post(url, format="json")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-@pytest.mark.django_db
-def test_delete_refresh_tokens(api_client: APIClient):
-    # Create a test user
-    user = CustomUser.objects.create_user(
-        email="test@example.com", password="password123"
-    )
-
-    # Create an OutstandingToken with all required fields
-    OutstandingToken.objects.create(
-        user=user,
-        jti="some-jti",
-        token="some-token",
-        created_at=timezone.now(),
-        expires_at=timezone.now()
-        + timedelta(days=1),  # Provide a valid expiration time
-    )
-
-    # Delete the user
-    CustomUser.objects.filter(id=user.id).delete()
-
-    # Verify the token exists with `user=None`
-    assert OutstandingToken.objects.filter(user=None).exists()
-
-    # Send a DELETE request to the endpoint
-    response = api_client.delete("/api/v1/users/token/delete-tokens-with-none-users/")
-
-    # Verify the response status and message
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert response.data["message"] == "Tokens associated with Null users are deleted"
-
-    # Verify the token has been deleted
-    assert not OutstandingToken.objects.filter(user=None).exists()

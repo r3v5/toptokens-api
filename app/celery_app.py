@@ -17,11 +17,17 @@ app.conf.broker_connection_retry_on_startup = os.environ.get(
 app.conf.beat_schedule = {
     "parse_tier_1_portfolios": {
         "task": "analytic_screener.tasks.parse_tier_1_portfolios",
-        "schedule": timedelta(seconds=20),
+        "schedule": timedelta(hours=12),
     },
     "update_fear_and_greed_indices": {
         "task": "analytic_screener.tasks.update_fear_and_greed_indices",
-        "schedule": timedelta(seconds=20),
+        "schedule": timedelta(hours=12),
+    },
+    "delete_expired_refresh_tokens": {
+        "task": "users.tasks.delete_expired_refresh_tokens",
+        "schedule": crontab(
+            hour=0, minute=0
+        ),  # for dev purposes 2 mins, for prod every midnight
     },
 }
 

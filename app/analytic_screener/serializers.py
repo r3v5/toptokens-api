@@ -1,21 +1,22 @@
+from typing import Any, Dict, List
+
 from rest_framework import serializers
 
 from .models import Cryptocurrency, HedgeFund, MarketIndicator, MarketRecommendation
 
 
 class HedgeFundSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = HedgeFund
         fields = ["id", "name"]
 
 
 class CryptocurrencySerializer(serializers.ModelSerializer):
-    hedge_funds = HedgeFundSerializer(many=True, read_only=True)
+    hedge_funds = serializers.SerializerMethodField()
 
     class Meta:
         model = Cryptocurrency
-        fields = [
+        fields: List[str] = [
             "id",
             "name",
             "ticker",
@@ -23,6 +24,22 @@ class CryptocurrencySerializer(serializers.ModelSerializer):
             "market_cap",
             "hedge_funds",
         ]
+
+    def get_hedge_funds(self, obj: Cryptocurrency) -> List[Dict[str, Any]]:
+        # Serialize only basic fields to avoid recursion
+        return HedgeFundSerializer(obj.hedge_funds.all(), many=True).data
+
+
+class HedgeFundDetailSerializer(serializers.ModelSerializer):
+    cryptocurrencies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HedgeFund
+        fields: List[str] = ["id", "name", "cryptocurrencies"]
+
+    def get_cryptocurrencies(self, obj: HedgeFund) -> List[Dict[str, Any]]:
+        # Serialize only basic fields to avoid recursion
+        return CryptocurrencySerializer(obj.cryptocurrencies.all(), many=True).data
 
 
 class MarketIndicatorSerializer(serializers.ModelSerializer):
@@ -37,4 +54,4 @@ class MarketRecommendationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MarketRecommendation
-        fields = ("type", "index_name", "value", "created_at")
+        fields = ("type", "indicator_name", "value", "created_at")

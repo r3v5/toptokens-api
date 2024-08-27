@@ -9,6 +9,11 @@ urlpatterns = [
         name="cryptocurrencies",
     ),
     path(
+        "hedge-funds-portfolio/",
+        views.HedgeFundPortfolioAPIView.as_view(),
+        name="hedge-fund-portfolios",
+    ),
+    path(
         "market-indicators/",
         views.MarketIndicatorAPIView.as_view(),
         name="market-indicators",

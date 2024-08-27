@@ -15,4 +15,3 @@ black==24.4.2
 isort==5.13.2
 gunicorn==22.0.0
 django-cors-headers==4.4.0
-tradingview-ta

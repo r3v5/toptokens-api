@@ -27,6 +27,7 @@ def parse_tier_1_portfolios():
         "Blockchain Capital": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=blockchain-capital-portfolio",
         "Delphi Digital": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&category=delphi-digital-portfolio",
     }
+
     headers = {
         "accept": "application/json",
         "x-cg-demo-api-key": os.environ.get("COINGECKO_API_KEY"),
@@ -42,11 +43,11 @@ def parse_tier_1_portfolios():
         # Filter tokens and populate the dictionary
         for token in tokens:
             market_cap = token.get("market_cap")
-            if market_cap is not None and market_cap > 100000000:
+            if market_cap is not None and market_cap > 500000000:
                 ticker = token["symbol"].upper()
                 if ticker not in token_dict:
                     token_dict[ticker] = {
-                        "name": token["name"],
+                        "name": token["id"],
                         "current_price": token["current_price"],
                         "market_cap": market_cap,
                     }
@@ -123,11 +124,15 @@ def update_fear_and_greed_indices():
         # Check the stock market index
         if stock_index < 45:
             MarketRecommendation.objects.create(
-                type="buy", index_name="Fear & Greed Stock Market", value=stock_index
+                type="buy",
+                indicator_name="Fear & Greed Stock Market",
+                value=stock_index,
             )
         elif stock_index > 55:
             MarketRecommendation.objects.create(
-                type="sell", index_name="Fear & Greed Stock Market", value=stock_index
+                type="sell",
+                indicator_name="Fear & Greed Stock Market",
+                value=stock_index,
             )
 
     if crypto_index != -1:
@@ -137,11 +142,15 @@ def update_fear_and_greed_indices():
         # Check the crypto market index
         if crypto_index < 45:
             MarketRecommendation.objects.create(
-                type="buy", index_name="Fear & Greed Crypto Market", value=crypto_index
+                type="buy",
+                indicator_name="Fear & Greed Crypto Market",
+                value=crypto_index,
             )
         elif crypto_index > 55:
             MarketRecommendation.objects.create(
-                type="sell", index_name="Fear & Greed Crypto Market", value=crypto_index
+                type="sell",
+                indicator_name="Fear & Greed Crypto Market",
+                value=crypto_index,
             )
 
     return {

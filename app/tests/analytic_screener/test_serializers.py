@@ -7,6 +7,7 @@ from analytic_screener.models import (
 )
 from analytic_screener.serializers import (
     CryptocurrencySerializer,
+    HedgeFundDetailSerializer,
     HedgeFundSerializer,
     MarketIndicatorSerializer,
     MarketRecommendationSerializer,
@@ -62,6 +63,39 @@ def test_hedge_fund_serializer():
 
 
 @pytest.mark.django_db
+def test_hedge_fund_detail_serializer():
+    # Create sample HedgeFunds and Cryptocurrencies
+    hedge_fund = HedgeFund.objects.create(name="Alpha Hedge Fund")
+    cryptocurrency1 = Cryptocurrency.objects.create(
+        name="Bitcoin",
+        ticker="BTC",
+        price=30000.00,
+        market_cap=500000000000,
+    )
+    cryptocurrency2 = Cryptocurrency.objects.create(
+        name="Ethereum",
+        ticker="ETH",
+        price=2000.00,
+        market_cap=300000000000,
+    )
+    hedge_fund.cryptocurrencies.add(cryptocurrency1, cryptocurrency2)
+
+    # Serialize the hedge fund instance with related cryptocurrencies
+    serializer = HedgeFundDetailSerializer(hedge_fund)
+    data = serializer.data
+
+    # Assert that the serialized data matches the expected output
+    assert data["id"] == hedge_fund.id
+    assert data["name"] == "Alpha Hedge Fund"
+
+    # Check the nested cryptocurrencies data
+    cryptocurrencies_data = data["cryptocurrencies"]
+    assert len(cryptocurrencies_data) == 2
+    assert any(crypto["name"] == "Bitcoin" for crypto in cryptocurrencies_data)
+    assert any(crypto["name"] == "Ethereum" for crypto in cryptocurrencies_data)
+
+
+@pytest.mark.django_db
 def test_market_indicator_serializer():
     # Create a sample MarketIndicator instance
     market_indicator = MarketIndicator.objects.create(
@@ -82,7 +116,7 @@ def test_market_indicator_serializer():
 def test_market_recommendation_serializer():
     # Create a sample MarketRecommendation instance with the current time
     market_recommendation = MarketRecommendation.objects.create(
-        type="buy", index_name="Crypto Market", value=30
+        type="buy", indicator_name="Crypto Market", value=30
     )
 
     # Serialize the instance
@@ -91,7 +125,7 @@ def test_market_recommendation_serializer():
 
     # Assert that the serialized data matches the expected output
     assert data["type"] == "buy"
-    assert data["index_name"] == "Crypto Market"
+    assert data["indicator_name"] == "Crypto Market"
     assert data["value"] == 30
 
     # Check the created_at field format

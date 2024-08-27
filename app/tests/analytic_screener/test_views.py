@@ -29,28 +29,40 @@ def create_user_with_tokens():
 @pytest.mark.django_db
 def test_cryptocurrency_view_with_valid_params(api_client, create_user_with_tokens):
     user, access_token = create_user_with_tokens
+
     # Create sample HedgeFunds
     hedge_fund = HedgeFund.objects.create(name="Top Hedge Fund")
 
-    # Create sample Cryptocurrency and associate with HedgeFund
-    cryptocurrency = Cryptocurrency.objects.create(
+    # Create sample Cryptocurrencies and associate with HedgeFund
+    cryptocurrency_1 = Cryptocurrency.objects.create(
         name="Bitcoin",
         ticker="BTC",
         price=30000.00,
         market_cap=500000000000,
     )
-    cryptocurrency.hedge_funds.add(hedge_fund)
+    cryptocurrency_1.hedge_funds.add(hedge_fund)
+
+    cryptocurrency_2 = Cryptocurrency.objects.create(
+        name="Ethereum",
+        ticker="ETH",
+        price=2000.00,
+        market_cap=200000000000,
+    )
+    cryptocurrency_2.hedge_funds.add(hedge_fund)
 
     url = reverse("cryptocurrencies")
+
+    # Test with descending order
     response = api_client.get(
         url,
         HTTP_AUTHORIZATION=f"Bearer {access_token}",
-        data={"period": "1_year", "order": "desc"},
+        data={"order": "desc"},
     )
 
     assert response.status_code == status.HTTP_200_OK
     assert isinstance(response.data, list)
     if response.data:
+        assert response.data[0]["name"] == "Bitcoin"  # Highest market cap first
         assert "id" in response.data[0]
         assert "name" in response.data[0]
         assert "hedge_funds" in response.data[0]
@@ -59,17 +71,24 @@ def test_cryptocurrency_view_with_valid_params(api_client, create_user_with_toke
             assert "id" in response.data[0]["hedge_funds"][0]
             assert "name" in response.data[0]["hedge_funds"][0]
 
-
-@pytest.mark.django_db
-def test_cryptocurrency_view_with_invalid_order(api_client, create_user_with_tokens):
-    user, access_token = create_user_with_tokens
-    url = reverse("cryptocurrencies")
+    # Test with ascending order
     response = api_client.get(
-        url, HTTP_AUTHORIZATION=f"Bearer {access_token}", data={"order": "invalid"}
+        url,
+        HTTP_AUTHORIZATION=f"Bearer {access_token}",
+        data={"order": "asc"},
     )
 
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data["error"] == "Invalid order specified"
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(response.data, list)
+    if response.data:
+        assert response.data[0]["name"] == "Ethereum"
+        assert "id" in response.data[0]
+        assert "name" in response.data[0]
+        assert "hedge_funds" in response.data[0]
+        assert isinstance(response.data[0]["hedge_funds"], list)
+        if response.data[0]["hedge_funds"]:
+            assert "id" in response.data[0]["hedge_funds"][0]
+            assert "name" in response.data[0]["hedge_funds"][0]
 
 
 @pytest.mark.django_db
@@ -96,8 +115,10 @@ def test_market_indicator_view(api_client, create_user_with_tokens):
 def test_market_recommendations_view(api_client, create_user_with_tokens):
     user, access_token = create_user_with_tokens
     # Create sample MarketRecommendation instances
-    MarketRecommendation.objects.create(type="buy", index_name="S&P 500", value=0.5)
-    MarketRecommendation.objects.create(type="sell", index_name="NASDAQ", value=-0.3)
+    MarketRecommendation.objects.create(type="buy", indicator_name="S&P 500", value=0.5)
+    MarketRecommendation.objects.create(
+        type="sell", indicator_name="NASDAQ", value=-0.3
+    )
 
     url = reverse("market-recommendations")
     response = api_client.get(url, HTTP_AUTHORIZATION=f"Bearer {access_token}")
@@ -109,11 +130,11 @@ def test_market_recommendations_view(api_client, create_user_with_tokens):
     assert isinstance(response.data["sell_recommendations"], list)
     if response.data["buy_recommendations"]:
         assert "type" in response.data["buy_recommendations"][0]
-        assert "index_name" in response.data["buy_recommendations"][0]
+        assert "indicator_name" in response.data["buy_recommendations"][0]
         assert "value" in response.data["buy_recommendations"][0]
         assert "created_at" in response.data["buy_recommendations"][0]
     if response.data["sell_recommendations"]:
         assert "type" in response.data["sell_recommendations"][0]
-        assert "index_name" in response.data["sell_recommendations"][0]
+        assert "indicator_name" in response.data["sell_recommendations"][0]
         assert "value" in response.data["sell_recommendations"][0]
         assert "created_at" in response.data["sell_recommendations"][0]

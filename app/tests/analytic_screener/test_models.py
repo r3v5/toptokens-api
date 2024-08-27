@@ -76,7 +76,7 @@ def test_market_indicator_model():
 def test_market_recommendation_creation():
     # Create a MarketRecommendation instance
     market_recommendation = MarketRecommendation.objects.create(
-        type="buy", index_name="Crypto Market", value=30
+        type="buy", indicator_name="Crypto Market", value=30
     )
 
     # Retrieve the MarketRecommendation instance from the database
@@ -86,6 +86,6 @@ def test_market_recommendation_creation():
 
     # Check if the MarketRecommendation was created and retrieved correctly
     assert retrieved_market_recommendation.type == "buy"
-    assert retrieved_market_recommendation.index_name == "Crypto Market"
+    assert retrieved_market_recommendation.indicator_name == "Crypto Market"
     assert retrieved_market_recommendation.value == 30
     assert retrieved_market_recommendation.created_at is not None

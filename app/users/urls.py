@@ -17,11 +17,6 @@ urlpatterns = [
         views.VerifyRefreshTokenAPIView.as_view(),
         name="token-verify",
     ),
-    path(
-        "token/delete-tokens-with-none-users/",
-        views.DeleteRefreshTokenAPIView.as_view(),
-        name="token-delete",
-    ),
     path("profile/", views.UserAPIView.as_view(), name="profile"),
     path("delete-profile/", views.UserAPIView.as_view(), name="delete-user"),
 ]
