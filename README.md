@@ -3895,25 +3895,32 @@ app.autodiscover_tasks()
    CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
    COINGECKO_API_KEY=<YOUR-API-KEY>``
   
-  5. Start building docker containers for API, Nginx, PostgreSQL, Redis, Celery worker, Celery-beat and up them:
+  5. In settings.py comment these variables and uncomment CSRF_TRUSTED_ORIGINS for localhost
+   ```
+   #SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+   #CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+   CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+   ```
+  
+  6. Start building docker containers for API, Nginx, PostgreSQL, Redis, Celery worker, Celery-beat and up them:
    ```
    docker compose -f docker-compose.yml up --build
    ```
-  6. Make migrations, apply them and collect staticfiles:
+  7. Make migrations, apply them and collect staticfiles:
    ```
    docker compose -f docker-compose.yml exec toptokens-api python manage.py makemigrations
    docker compose -f docker-compose.yml exec toptokens-api python manage.py migrate
    docker compose -f docker-compose.yml exec toptokens-api python manage.py collectstatic --no-input --clear
    ```
-   7. Create Django superuser to grant access to Django admin panel:
+   8. Create Django superuser to grant access to Django admin panel:
    ```
    docker compose -f docker-compose.yml exec toptokens-api python manage.py createsuperuser
    ``` 
-  8. Run tests:
+  9. Run tests:
    ```
    docker compose -f docker-compose.yml exec toptokens-api pytest
    ```
-  9. Navigate to Django Admin Panel by this url http://localhost:1337/admin/login/?next=/admin/ and access the content of database with cryptocurrency data:
+  10. Navigate to Django Admin Panel by this url http://localhost:1337/admin/login/?next=/admin/ and access the content of database with cryptocurrency data:
    ```
    Email address: email address you used to create superuser
    Password: password you used to create superuser
