@@ -3785,7 +3785,7 @@ Get market recommendations for today  - ```curl -X GET http://127.0.0.1:1337/api
 •  **Celery Task Queue for mining data about tier 1 hedge funds portfolios and updating market indicators values**:
 ```
 # Configure Celery Beat
-app.conf.beat_schedule = {
+```app.conf.beat_schedule = {
     "parse_tier_1_portfolios": {
         "task": "analytic_screener.tasks.parse_tier_1_portfolios",
         "schedule": timedelta(hours=12),
