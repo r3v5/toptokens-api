@@ -6,7 +6,6 @@ env
 .idea
 .env.dev
 .env.prod
-.env.prod
 .DS_Store
 celerybeat-schedule
 .idea/
